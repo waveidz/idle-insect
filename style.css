@@ -1,0 +1,265 @@
+/* =========================================================
+   Idle Insect — Clean Organized Stylesheet
+   ========================================================= */
+
+/* ---------- ROOT VARIABLES ---------- */
+:root {
+  --bg-color: #f8f5e1;
+  --text-color: #333;
+  --header-bg: #cfc7a9;
+  --header-border: #b5a87e;
+  --unit-bg: #e6dec4;
+  --button-bg: #6c8f4c;
+  --button-hover: #82a55b;
+
+  /* Progress bar colors */
+  --bar-food: #6c8f4c;
+  --bar-soil: #8b5a2b;
+  --bar-mineral: #777;
+  --bar-research: #41729f;
+}
+
+/* ---------- DARK MODE VARIABLES ---------- */
+body.dark {
+  --bg-color: #2b2b2b;
+  --text-color: #f2f2f2;
+  --header-bg: #444;
+  --header-border: #555;
+  --unit-bg: #3a3a3a;
+  --button-bg: #5e8547;
+  --button-hover: #79a65c;
+}
+
+/* ---------- BASE STYLES ---------- */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.4s, color 0.4s;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ---------- HEADER ---------- */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--header-bg);
+  padding: 10px 20px;
+  border-bottom: 3px solid var(--header-border);
+}
+
+#left-header {
+  display: flex;
+  align-items: center;
+}
+
+#game-title {
+  font-weight: bold;
+  font-size: 24px;
+  margin-right: 20px;
+}
+
+#resource-line {
+  border-left: 2px solid var(--text-color);
+  height: 30px;
+  margin-right: 20px;
+}
+
+/* ---------- RESOURCES ---------- */
+#resources span {
+  margin-right: 15px;
+  font-weight: 600;
+}
+
+#resources small {
+  font-size: 11px;
+  color: var(--text-color);
+  opacity: 0.8;
+}
+
+/* ---------- DARK MODE BUTTON ---------- */
+#dark-mode-toggle {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--button-bg);
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#dark-mode-toggle:hover {
+  background-color: var(--button-hover);
+}
+
+/* ---------- NAVIGATION TABS ---------- */
+#tabs {
+  display: flex;
+  background: var(--header-bg);
+  border-bottom: 2px solid var(--header-border);
+}
+
+.tab-button {
+  flex: 1;
+  padding: 10px;
+  background: var(--header-bg);
+  color: var(--text-color);
+  border: none;
+  cursor: pointer;
+}
+
+.tab-button.active {
+  font-weight: bold;
+  background: var(--unit-bg);
+}
+
+.tab-button:hover {
+  background: var(--button-hover);
+}
+
+/* ---------- MAIN CONTENT ---------- */
+main {
+  padding: 20px;
+}
+
+/* ---------- UNITS ---------- */
+.unit {
+  background-color: var(--unit-bg);
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  max-width: 260px;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+  transition: background-color 0.3s;
+}
+
+.status-text {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 6px 0 4px;
+  transition: color 0.6s ease, opacity 0.4s ease;
+}
+
+
+
+button {
+  margin-top: 6px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--button-bg);
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: var(--button-hover);
+}
+
+/* ---------- PRODUCTION SUMMARY ---------- */
+#production-summary {
+  text-align: center;
+  background: var(--unit-bg);
+  padding: 10px;
+  border-top: 3px solid var(--header-border);
+  font-weight: 600;
+}
+
+/* =========================================================
+   COMPONENTS
+   ========================================================= */
+
+/* ---------- PROGRESS BARS ---------- */
+.progress-container {
+  width: 100%;
+  height: 8px;
+  background-color: #d9d4b7;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  transition: width 0.8s ease-in-out;
+  border-radius: 4px;
+}
+
+
+/* ---------- INFO TOOLTIPS (Lore Boxes) ---------- */
+.info-box {
+  position: absolute;
+  background-color: var(--unit-bg);
+  color: var(--text-color);
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  width: 260px;
+  font-size: 14px;
+  z-index: 10;
+}
+
+.info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-btn {
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.info-btn {
+  background-color: #507c35;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.info-btn:hover {
+  background-color: #6fa34b;
+}
+
+/* ---------- MODAL (if reused later) ---------- */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background-color: var(--unit-bg);
+  color: var(--text-color);
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.close {
+  float: right;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+}
