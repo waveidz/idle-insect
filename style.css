@@ -85,15 +85,53 @@ header {
   height: 30px;
   margin-right: 20px;
 }
+/* =========================================================
+   RESOURCE TABLE — Clean Bordered Layout (Dynamic Visibility)
+========================================================= */
+#resources {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  border: 2px solid var(--header-border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--unit-bg);
+}
+
 #resources span {
-  margin-right: 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
   font-weight: 600;
+  border-right: 1px solid var(--header-border);
+  text-align: center;
+  min-width: 100px;
 }
-#resources small {
+
+#resources span:not(.hidden):last-of-type {
+  border-right: none !important;
+}
+
+#resources span strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 3px;
+}
+
+#resources span small {
+  display: block;
   font-size: 11px;
-  color: var(--text-color);
   opacity: 0.8;
+  margin-top: 2px;
 }
+
+.hidden {
+  display: none !important;
+}
+
 
 /* =========================================================
    SECTION 4 — MAIN DROPDOWNS & UNIT CARDS

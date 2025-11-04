@@ -46,8 +46,12 @@ function updateUI() {
       costEl.textContent = units[key].cost.toFixed(0);
   }
 
-  if (research >= 1)
-    document.getElementById("skills-tab-button").classList.remove("hidden");
+if (research >= 1) {
+  document.getElementById("skills-tab-button").classList.remove("hidden");
+  const skillsTab = document.getElementById("skills-tab");
+  if (skillsTab) skillsTab.classList.remove("hidden"); // 🧩 FIX
+}
+
 
   updateUnitStatus();
 }
@@ -88,6 +92,24 @@ document.addEventListener("DOMContentLoaded", () => {
       if (arrow) arrow.style.transform = isOpen ? "rotate(0deg)" : "rotate(-90deg)";
     });
   });
+
+// --- Top-level navigation tabs (Main / Skills / Ascension / Cheats) ---
+document.querySelectorAll(".tab-button").forEach(button => {
+  button.addEventListener("click", () => {
+    const tabId = button.dataset.tab;
+
+    // hide all tabs
+    document.querySelectorAll(".tab").forEach(t => t.classList.add("hidden"));
+    // deactivate all buttons
+    document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+
+    // show selected tab + activate button
+    const tabEl = document.getElementById(tabId);
+    if (tabEl) tabEl.classList.remove("hidden");
+    button.classList.add("active");
+  });
+});
+
 
 /* ---------- DROPDOWN BEHAVIOR TOGGLE ---------- */
 const dropdownToggleBtn = document.getElementById("dropdown-toggle-mode");
@@ -156,108 +178,115 @@ dropdownToggleBtn.addEventListener("click", () => {
 /* ---------------------------------------------------------
    SECTION 5: UNIT PURCHASE LOGIC
 --------------------------------------------------------- */
+const COST_MULTIPLIER = 1.15; // 15% increase per purchase
+
 function buyUnit(unit) {
-  // 🧩 Developer cheat support: free unit mode
   if (window.buyFreeUnits) {
     units[unit].count++;
-
-    // Unlock dependencies normally
-    switch (unit) {
-      case "larva":
-        document.getElementById("ant-unit").classList.remove("hidden");
-        break;
-      case "ant":
-        ["forager-unit", "worker-unit", "queen-unit"].forEach(id =>
-          document.getElementById(id).classList.remove("hidden")
-        );
-        break;
-      case "worker":
-        document.getElementById("soil-container").classList.remove("hidden");
-        document.getElementById("digger-unit").classList.remove("hidden");
-        break;
-      case "digger":
-        document.getElementById("mineral-container").classList.remove("hidden");
-        document.getElementById("scientist-unit").classList.remove("hidden");
-        break;
-      case "scientist":
-        document.getElementById("research-container").classList.remove("hidden");
-        break;
-    }
-
+    unlockDependencies(unit);
     updateUI();
-    console.log(`💸 Bought ${unit} for free (cheat mode).`);
-    return; // ✅ skip normal cost logic
+    return;
   }
 
-  // 🐜 Normal gameplay cost handling
   switch (unit) {
-    case "larva":
+    case 'larva':
       if (food >= units.larva.cost) {
         food -= units.larva.cost;
         units.larva.count++;
-        units.larva.cost += 10;
-        document.getElementById("ant-unit").classList.remove("hidden");
+        units.larva.cost = Math.ceil(units.larva.cost * COST_MULTIPLIER);
+        unlockDependencies(unit);
       }
       break;
-    case "ant":
+    case 'ant':
       if (food >= units.ant.cost && units.larva.count >= 1) {
         food -= units.ant.cost;
         units.larva.count--;
         units.ant.count++;
-        units.ant.cost += 40;
-        ["forager-unit", "worker-unit", "queen-unit"].forEach(id =>
-          document.getElementById(id).classList.remove("hidden")
-        );
+        units.ant.cost = Math.ceil(units.ant.cost * COST_MULTIPLIER);
+        unlockDependencies(unit);
       }
       break;
-    case "forager":
+    case 'forager':
       if (food >= units.forager.cost && units.ant.count >= 1) {
         food -= units.forager.cost;
         units.ant.count--;
         units.forager.count++;
-        units.forager.cost += 100;
+        units.forager.cost = Math.ceil(units.forager.cost * COST_MULTIPLIER);
       }
       break;
-    case "worker":
+    case 'worker':
       if (food >= units.worker.cost && units.ant.count >= 1) {
         food -= units.worker.cost;
         units.ant.count--;
         units.worker.count++;
-        document.getElementById("soil-container").classList.remove("hidden");
-        document.getElementById("digger-unit").classList.remove("hidden");
+        units.worker.cost = Math.ceil(units.worker.cost * COST_MULTIPLIER);
+        unlockDependencies(unit);
       }
       break;
-    case "queen":
+    case 'queen':
       if (food >= units.queen.cost && units.ant.count >= 50) {
         food -= units.queen.cost;
         units.ant.count -= 50;
         units.queen.count++;
-        units.queen.cost += 200;
+        units.queen.cost = Math.ceil(units.queen.cost * COST_MULTIPLIER);
       }
       break;
-    case "digger":
+    case 'digger':
       if (food >= units.digger.cost && units.ant.count >= 1) {
         food -= units.digger.cost;
         units.ant.count--;
         units.digger.count++;
-        document.getElementById("mineral-container").classList.remove("hidden");
-        document.getElementById("scientist-unit").classList.remove("hidden");
+        units.digger.cost = Math.ceil(units.digger.cost * COST_MULTIPLIER);
+        unlockDependencies(unit);
       }
       break;
-    case "scientist":
-      if (food >= units.scientist.costFood &&
-          minerals >= units.scientist.costMineral &&
-          units.ant.count >= 1) {
+    case 'scientist':
+      if (food >= units.scientist.costFood && minerals >= units.scientist.costMineral && units.ant.count >= 1) {
         food -= units.scientist.costFood;
         minerals -= units.scientist.costMineral;
         units.ant.count--;
         units.scientist.count++;
-        document.getElementById("research-container").classList.remove("hidden");
+        units.scientist.costFood = Math.ceil(units.scientist.costFood * COST_MULTIPLIER);
+        units.scientist.costMineral = Math.ceil(units.scientist.costMineral * COST_MULTIPLIER);
       }
       break;
   }
+  // === Unlock Scientist when Minerals are gained ===
+if (minerals > 0) {
+  const sciUnit = document.getElementById("scientist-unit");
+  const sciTab = document.querySelector(".dropdown-header[data-target='science-group']");
+  if (sciUnit) sciUnit.classList.remove("hidden");
+  if (sciTab) sciTab.parentElement.classList.remove("hidden");
+  document.getElementById("mineral-container").classList.remove("hidden");
+}
+
   updateUI();
 }
+
+function unlockDependencies(unit) {
+  switch (unit) {
+    case 'larva':
+      document.getElementById('ant-unit').classList.remove('hidden');
+      break;
+    case 'ant':
+      ['forager-unit', 'worker-unit', 'queen-unit'].forEach(id =>
+        document.getElementById(id).classList.remove('hidden')
+      );
+      break;
+    case 'worker':
+      document.getElementById('soil-container').classList.remove('hidden');
+      document.getElementById('digger-unit').classList.remove('hidden');
+      break;
+    case 'digger':
+      document.getElementById('mineral-container').classList.remove('hidden');
+      document.getElementById('scientist-unit').classList.remove('hidden');
+      break;
+    case 'scientist':
+      document.getElementById('research-container').classList.remove('hidden');
+      break;
+  }
+}
+
 
 
 /* ---------------------------------------------------------
@@ -466,8 +495,12 @@ if (units.scientist.count > 0) {
   document.getElementById("scientist-unit").classList.remove("hidden");
   document.getElementById("mineral-container").classList.remove("hidden");
   document.getElementById("research-container").classList.remove("hidden");
+  const sciDropdown = document.getElementById("science-dropdown");
+  if (sciDropdown) sciDropdown.classList.remove("hidden");
+
   scienceUnlocked = true;
 }
+
 
 // ---------- Auto-expand dropdowns ----------
 function openDropdown(targetId) {
@@ -498,15 +531,38 @@ if (dropdownPref === "auto") {
   });
 }
 
-    // Restore unlocked tabs/features
-    if (summaryUnlocked)
-      document.getElementById("production-summary").classList.remove("hidden");
-    if (research >= 1)
-      document.getElementById("skills-tab-button").classList.remove("hidden");
-    if (rebirthPoints >= 1)
-      document.getElementById("ascension-tab-button").classList.remove("hidden");
+// Restore unlocked tabs/features
+if (summaryUnlocked)
+  document.getElementById("production-summary").classList.remove("hidden");
 
-    updateUI();
+if (research >= 1) {
+  const skillsButton = document.getElementById("skills-tab-button");
+  const skillsTab = document.getElementById("skills-tab");
+  if (skillsButton) skillsButton.classList.remove("hidden");
+  if (skillsTab) skillsTab.classList.remove("hidden");
+} else {
+  document.getElementById("skills-tab-button").classList.add("hidden");
+  const skillsTab = document.getElementById("skills-tab");
+  if (skillsTab) skillsTab.classList.add("hidden");
+}
+
+if (rebirthPoints >= 1)
+  document.getElementById("ascension-tab-button").classList.remove("hidden");
+
+updateUI();
+
+// --- Ensure only Main tab shows on initial load ---
+document.querySelectorAll(".tab").forEach(tab => tab.classList.add("hidden"));
+const mainTab = document.getElementById("main-tab");
+if (mainTab) mainTab.classList.remove("hidden");
+
+// Reset tab button states
+document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
+const mainBtn = document.querySelector('[data-tab="main-tab"]');
+if (mainBtn) mainBtn.classList.add("active");
+
+
+    
   } catch (e) {
     console.error("❌ Error loading save:", e);
   }
