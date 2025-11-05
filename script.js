@@ -12,6 +12,9 @@ let queenMultiplier = 1;
 let rebirthPoints = 0;
 let larvaBoost = 1;
 let antBoost = 1;
+let droneCount = 0;
+let droneUnlocked = false;
+
 
 // Global cheat mode flag (toggled via dev.js)
 window.buyFreeUnits = false;
@@ -47,10 +50,14 @@ function updateUI() {
   }
 
 if (research >= 1) {
-  document.getElementById("skills-tab-button").classList.remove("hidden");
+  const skillsButton = document.getElementById("skills-tab-button");
+  if (skillsButton) skillsButton.classList.remove("hidden");
+  // Keep the Skills tab hidden until clicked
+} else {
   const skillsTab = document.getElementById("skills-tab");
-  if (skillsTab) skillsTab.classList.remove("hidden"); // 🧩 FIX
+  if (skillsTab) skillsTab.classList.add("hidden");
 }
+
 
 
   updateUnitStatus();
@@ -360,6 +367,47 @@ document.getElementById("buy-efficiency").addEventListener("click", () => {
     updateUI();
   }
 });
+document.getElementById("buy-drone").addEventListener("click", () => {
+  if (food >= 1000 && units.ant.count >= 1) {
+    food -= 1000;
+    units.ant.count -= 1;
+    droneCount++;
+    queenMultiplier *= 1.01; // +1% queen production
+    document.getElementById("drone-count").textContent = droneCount;
+    updateUI();
+  } else {
+    alert("❌ Not enough Food or Ants to train a Drone!");
+  }
+});
+// --- DRONE UPGRADE UNLOCK ---
+document.getElementById("buy-drone-upgrade").addEventListener("click", () => {
+  if (research >= 10000 && !droneUnlocked) {
+    research -= 10000;
+    droneUnlocked = true;
+    document.getElementById("buy-drone-upgrade").textContent = "Unlocked!";
+    document.getElementById("buy-drone-upgrade").disabled = true;
+    document.getElementById("drone-training").classList.remove("hidden");
+    updateUI();
+  } else if (!droneUnlocked) {
+    alert("❌ Not enough Research to unlock Drone Training!");
+  }
+});
+
+// --- DRONE TRAINING ---
+document.getElementById("buy-drone").addEventListener("click", () => {
+  if (!droneUnlocked) return alert("You must unlock Drone Training first!");
+  if (food >= 1000 && units.ant.count >= 1) {
+    food -= 1000;
+    units.ant.count -= 1;
+    droneCount++;
+    queenMultiplier *= 1.01; // +1% per Drone
+    document.getElementById("drone-count").textContent = droneCount;
+    updateUI();
+  } else {
+    alert("❌ Not enough Food or Ants to train a Drone!");
+  }
+});
+
 document.getElementById("buy-queen-upgrade").addEventListener("click", () => {
   if (research >= 50000) {
     research -= 50000;
@@ -428,7 +476,8 @@ function saveGame() {
   const data = {
     food, soil, minerals, research, rebirthPoints,
     larvaBoost, antBoost, summaryUnlocked,
-    efficiencyMultiplier, queenMultiplier, units
+    efficiencyMultiplier, queenMultiplier, units,
+    droneUnlocked, droneCount
   };
   localStorage.setItem("idleInsectSave", JSON.stringify(data));
   localStorage.setItem("idleInsectSaveTime", Date.now());
@@ -450,6 +499,16 @@ function loadGame() {
     antBoost = data.antBoost || 1;
     summaryUnlocked = data.summaryUnlocked || false;
     efficiencyMultiplier = data.efficiencyMultiplier || 1;
+   droneUnlocked = data.droneUnlocked || false;
+droneCount = data.droneCount || 0;
+document.getElementById("drone-count").textContent = droneCount;
+
+if (droneUnlocked) {
+  document.getElementById("buy-drone-upgrade").textContent = "Unlocked!";
+  document.getElementById("buy-drone-upgrade").disabled = true;
+  document.getElementById("drone-training").classList.remove("hidden");
+}
+
     queenMultiplier = data.queenMultiplier || 1;
 
     // Restore unit data
